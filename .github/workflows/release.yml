@@ -53,7 +53,7 @@ jobs:
       - name: Install build tools
         run: |
           apt-get update
-          apt-get install -y --no-install-recommends ca-certificates git debhelper dh-python \
+          apt-get install -y --no-install-recommends build-essential ca-certificates git debhelper dh-python \
             pybuild-plugin-pyproject python3-all python3-setuptools
       - uses: actions/checkout@v4
       - name: Build the .deb

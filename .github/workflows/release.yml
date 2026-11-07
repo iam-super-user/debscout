@@ -1,0 +1,138 @@
+name: Release
+
+# Push a tag like v0.1.0 to build and publish everything:
+# PyPI, a GitHub release with the .deb, and the signed apt repository on GitHub Pages.
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Run tests
+        run: PYTHONPATH=src python -m unittest discover -s tests -v
+      - name: Check the tag matches the version
+        run: |
+          version=$(PYTHONPATH=src python -c 'import debscout; print(debscout.__version__)')
+          deb_version=$(dpkg-parsechangelog -S Version 2>/dev/null || sed -n '1s/.*(\(.*\)).*/\1/p' debian/changelog)
+          echo "tag=${GITHUB_REF_NAME} python=${version} debian=${deb_version}"
+          test "${GITHUB_REF_NAME}" = "v${version}"
+          test "${deb_version%-*}" = "${version}"
+
+  python:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Build sdist and wheel
+        run: |
+          python -m pip install --upgrade build twine
+          python -m build
+          python -m twine check --strict dist/*
+      - uses: actions/upload-artifact@v4
+        with:
+          name: python-dist
+          path: dist/
+
+  deb:
+    needs: test
+    runs-on: ubuntu-latest
+    container: debian:trixie
+    steps:
+      - name: Install build tools
+        run: |
+          apt-get update
+          apt-get install -y --no-install-recommends ca-certificates git debhelper dh-python \
+            pybuild-plugin-pyproject python3-all python3-setuptools
+      - uses: actions/checkout@v4
+      - name: Build the .deb
+        run: |
+          dpkg-buildpackage -us -uc -b
+          mkdir -p out
+          mv ../debscout_*.deb out/
+          dpkg-deb --info out/*.deb
+          dpkg-deb --contents out/*.deb
+      - name: Install and run it
+        run: |
+          apt-get install -y ./out/*.deb
+          debscout --version
+          debscout --help > /dev/null
+      - uses: actions/upload-artifact@v4
+        with:
+          name: deb
+          path: out/*.deb
+
+  pypi:
+    needs: [python, deb]
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/p/debscout
+    permissions:
+      id-token: write  # PyPI trusted publishing: no API token stored anywhere
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: python-dist
+          path: dist/
+      - uses: pypa/gh-action-pypi-publish@release/v1
+
+  github-release:
+    needs: [python, deb]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts/
+          merge-multiple: true
+      - name: Create the GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" artifacts/* \
+            --title "debscout ${GITHUB_REF_NAME#v}" \
+            --notes "Install from the apt repository: https://iam-super-user.github.io/debscout/ or with: pipx install debscout"
+
+  apt-repo:
+    needs: deb
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: deb
+          path: debs/
+      - name: Build the signed apt repository
+        env:
+          APT_SIGNING_KEY: ${{ secrets.APT_SIGNING_KEY }}
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends apt-utils gnupg xz-utils
+          sh scripts/build-apt-repo.sh debs site
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site/
+      - id: deploy
+        uses: actions/deploy-pages@v4

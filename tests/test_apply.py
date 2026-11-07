@@ -120,6 +120,11 @@ class ApplyTests(unittest.TestCase):
     def test_undo_without_state(self):
         self.assertEqual(ap.undo(self.root), [])
 
+    def test_state_is_world_readable(self):
+        ap.apply_plan(self.plan(), run_update=False, log=lambda *_: None)
+        mode = (self.root / ap.STATE_DIR / ap.STATE_FILE).stat().st_mode & 0o777
+        self.assertEqual(mode, 0o644)
+
 
 if __name__ == "__main__":
     unittest.main()

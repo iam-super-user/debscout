@@ -116,12 +116,15 @@ def load_state(root: Path) -> Optional[dict]:
         return json.loads(path.read_text())
     except FileNotFoundError:
         return None
+    except PermissionError as exc:
+        raise DebscoutError(f"cannot read {display(root, path)} (permission denied); try again with sudo") from exc
     except (OSError, ValueError) as exc:
         raise DebscoutError(f"cannot read {display(root, path)}: {exc}") from exc
 
 
 def save_state(root: Path, state: dict) -> None:
-    write_atomic(root / STATE_DIR / STATE_FILE, json.dumps(state, indent=2) + "\n", mode=0o600)
+    # Only file paths and checksums: world-readable, so 'debscout --status' works without root.
+    write_atomic(root / STATE_DIR / STATE_FILE, json.dumps(state, indent=2) + "\n", mode=0o644)
 
 
 def write_atomic(path: Path, text: str, mode: Optional[int] = None) -> None:

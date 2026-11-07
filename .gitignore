@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+*.egg-info/
+build/
+dist/
+
+# Debian package build output
+*.deb
+*.buildinfo
+*.changes
+debian/.debhelper/
+debian/debscout/
+debian/files
+debian/*.substvars
+debian/*.debhelper.log
+
+# Editors
+.vscode/
+.idea/
+*.swp

@@ -1,0 +1,34 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "debscout"
+dynamic = ["version"]
+description = "Find the fastest up-to-date Debian mirrors and configure apt to use them, with automatic fallback"
+readme = "README.md"
+license = { text = "MIT" }
+authors = [{ name = "Manish Sharma" }]
+requires-python = ">=3.9"
+keywords = ["debian", "apt", "mirror", "fastest", "sources.list"]
+classifiers = [
+    "Environment :: Console",
+    "Intended Audience :: System Administrators",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3",
+    "Topic :: System :: Software Distribution",
+]
+
+[project.urls]
+Homepage = "https://github.com/iam-super-user/debscout"
+Issues = "https://github.com/iam-super-user/debscout/issues"
+
+[project.scripts]
+debscout = "debscout.cli:main"
+
+[tool.setuptools.dynamic]
+version = { attr = "debscout.__version__" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

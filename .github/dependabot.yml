@@ -1,0 +1,11 @@
+# Keep the pinned GitHub Actions up to date (debscout itself has no
+# third-party Python dependencies).
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      github-actions:
+        patterns: ["*"]

@@ -1,0 +1,28 @@
+Source: debscout
+Section: admin
+Priority: optional
+Maintainer: Manish Sharma <manish.sharma@owasp.org>
+Build-Depends: debhelper-compat (= 13),
+               dh-sequence-python3,
+               pybuild-plugin-pyproject,
+               python3-all,
+               python3-setuptools (>= 77),
+Standards-Version: 4.7.2
+Homepage: https://github.com/iam-super-user/debscout
+Vcs-Browser: https://github.com/iam-super-user/debscout
+Vcs-Git: https://github.com/iam-super-user/debscout.git
+Rules-Requires-Root: no
+X-Python3-Version: >= 3.9
+
+Package: debscout
+Architecture: all
+Depends: apt (>= 1.6), ${misc:Depends}, ${python3:Depends}
+Description: find the fastest up-to-date Debian mirrors for apt
+ debscout tests Debian's official mirrors and CDNs from your own
+ connection. It skips mirrors that are out of date, measures real
+ download speed rather than ping time, and ranks the results.
+ .
+ It can then point apt at the fastest mirrors using apt's mirror list
+ feature, so apt falls back to the next mirror automatically if one
+ fails. Security updates only come from Debian's own hosts. Every change
+ is backed up and can be undone with a single command.

@@ -1,0 +1,8 @@
+#!/usr/bin/make -f
+
+export PYBUILD_NAME=debscout
+# The test suite runs in CI before packaging.
+export PYBUILD_DISABLE=test
+
+%:
+	dh $@ --buildsystem=pybuild

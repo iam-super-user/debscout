@@ -1,5 +1,13 @@
+debscout (0.1.1-1) unstable; urgency=medium
+
+  * Pin GitHub Actions to commit SHAs and add Dependabot updates.
+  * Fix a CodeQL alert in the test suite.
+  * README: drop the author section and contact address.
+
+ -- Manish Sharma <manish.sharma@owasp.org>  Sat, 07 Nov 2026 13:22:34 +0530
+
 debscout (0.1.0-1) unstable; urgency=medium
 
   * Initial release.
 
- -- Manish Sharma <manish.sharma@owasp.org>  Sat, 07 Nov 2026 13:30:00 +0530
+ -- Manish Sharma <manish.sharma@owasp.org>  Sat, 07 Nov 2026 12:55:00 +0530

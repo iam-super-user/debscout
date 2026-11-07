@@ -54,9 +54,8 @@ or newer). Upgrades then come with the rest of your system:
 
 The repository is signed with this key:
 
-    pub   rsa4096 2026-11-07 [SC] [expires: 2031-11-06]
-          5D2B C8E3 028B 5D62 39C6  416E A08C 17C2 1C69 04A9
-    uid   debscout apt repository <manish.sharma@owasp.org>
+    rsa4096, created 2026-11-07, expires 2031-11-06
+    fingerprint: 5D2B C8E3 028B 5D62 39C6  416E A08C 17C2 1C69 04A9
 
 To check the key you downloaded:
 
@@ -64,7 +63,7 @@ To check the key you downloaded:
 
 From a .deb file, downloaded from the GitHub releases page:
 
-    sudo apt install ./debscout_0.1.0-1_all.deb
+    sudo apt install ./debscout_*_all.deb
 
 From PyPI, with pipx. sudo does not search ~/.local/bin, so give it
 the full path:
@@ -320,12 +319,6 @@ apt-transport-mirror(1), sources.list(5), netselect-apt(1).
 debscout was inspired by Manjaro's "pacman-mirrors --fasttrack" and
 Arch Linux's reflector. It is an independent implementation and
 shares no code with them.
-
-
-Author
-------
-
-Manish Sharma <manish.sharma@owasp.org>
 
 
 License

@@ -17,10 +17,13 @@ STALE = "Date: Tue, 09 Jun 2026 08:18:39 +0000\n"
 
 
 class QuietHandler(SimpleHTTPRequestHandler):
+    REDIRECTS = {"/moved/project/trace/master": "/fresh/project/trace/master"}  # a mirror that moved
+
     def do_GET(self):
-        if self.path.startswith("/moved/"):  # a mirror that redirects elsewhere
+        target = self.REDIRECTS.get(self.path)
+        if target:  # a fixed, relative Location: nothing from the request is echoed back
             self.send_response(301)
-            self.send_header("Location", f"http://{self.headers['Host']}/fresh/{self.path[len('/moved/'):]}")
+            self.send_header("Location", target)
             self.send_header("Content-Length", "0")
             self.end_headers()
             return
